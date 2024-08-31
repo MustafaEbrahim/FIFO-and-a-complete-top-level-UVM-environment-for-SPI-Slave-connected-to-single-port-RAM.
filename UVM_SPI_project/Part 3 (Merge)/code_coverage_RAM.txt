@@ -1,0 +1,110 @@
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /\top#DUT_RAM 
+=== Design Unit: work.Dp_Sync_RAM_wrapper
+=================================================================================
+Branch Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         7         7         0   100.00%
+
+================================Branch Details================================
+
+Branch Coverage for instance /\top#DUT_RAM 
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File Dp_Sync_RAM.sv
+------------------------------------IF Branch------------------------------------
+    16                                    122012     Count coming in to IF
+    16              1                         12     			if (!rst_n) begin
+    22              1                       8000     		    else if (rx_valid) begin
+    31              1                     114000     		    else begin
+Branch totals: 3 hits of 3 branches = 100.00%
+
+------------------------------------CASE Branch------------------------------------
+    24                                      8000     Count coming in to CASE
+    25              1                       2000     			        2'b00:  wr_addr  <= din[7:0];
+    26              1                       2000     			        2'b01: mem[wr_addr] <= din[7:0];
+    27              1                       2000     			        2'b10: rd_addr <= din[7:0];
+    28              1                       2000     			        default: {dout, tx_valid} <= {mem[rd_addr], 1'b1};
+Branch totals: 4 hits of 4 branches = 100.00%
+
+
+Statement Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Statements                      13        13         0   100.00%
+
+================================Statement Details================================
+
+Statement Coverage for instance /\top#DUT_RAM  --
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File Dp_Sync_RAM.sv
+    1                                                module Dp_Sync_RAM_wrapper(rst_n, din, rx_valid, dout, tx_valid);
+    2                                                	parameter MEM_DEPTH = 256;
+    3                                                	parameter ADDR_SIZE = 8;
+    4                                                
+    5                                                	input rst_n, rx_valid;
+    6                                                	input [9:0] din;
+    7                                                	output reg tx_valid;
+    8                                                	output reg [7:0] dout;
+    9                                                
+    10                                               	reg [7:0] mem [MEM_DEPTH-1:0];
+    11                                               	reg [ADDR_SIZE-1:0] rd_addr,wr_addr ;
+    12                                               	
+    13                                               	initial begin // first bug : rst must be syncrouns no Ashync
+    14              1                          1     		#1 
+    15              1                          1     		forever begin
+    16                                               			if (!rst_n) begin
+    17              1                         12     		        dout <= 0;
+    18              1                         12     		        tx_valid <= 0; //second bug : tx must take zero when rst_n is asserted
+    19              1                         12     		        wr_addr <= 0 ;
+    20              1                         12     		        rd_addr <= 0 ;//3th bug : when rst_n asserted , addr and not 2 internal signals it only one 
+    21                                               		    end
+    22                                               		    else if (rx_valid) begin
+    23              1                       8000     		        tx_valid <= 0;
+    24                                               		        case (din[9:8])
+    25              1                       2000     			        2'b00:  wr_addr  <= din[7:0];
+    26              1                       2000     			        2'b01: mem[wr_addr] <= din[7:0];
+    27              1                       2000     			        2'b10: rd_addr <= din[7:0];
+    28              1                       2000     			        default: {dout, tx_valid} <= {mem[rd_addr], 1'b1};
+    29                                               		        endcase
+    30                                               		    end
+    31                                               		    else begin
+    32              1                     114000     			    tx_valid  <= 0 ;
+    33                                               		    end
+    34                                               		 //4th bug : when rx_valid not asserted then tx_valid must down to zero
+    35              1                     122012     		 #2; 
+
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                         74        74         0   100.00%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /\top#DUT_RAM  --
+
+                                              Node      1H->0L      0L->1H                          "Coverage"
+                                              ---------------------------------------------------------------
+                                          din[0-9]           1           1                              100.00 
+                                         dout[7-0]           1           1                              100.00 
+                                      rd_addr[7-0]           1           1                              100.00 
+                                             rst_n           1           1                              100.00 
+                                          rx_valid           1           1                              100.00 
+                                          tx_valid           1           1                              100.00 
+                                      wr_addr[7-0]           1           1                              100.00 
+
+Total Node Count     =         37 
+Toggled Node Count   =         37 
+Untoggled Node Count =          0 
+
+Toggle Coverage      =     100.00% (74 of 74 bins)
+
+
+Total Coverage By Instance (filtered view): 100.00%
+

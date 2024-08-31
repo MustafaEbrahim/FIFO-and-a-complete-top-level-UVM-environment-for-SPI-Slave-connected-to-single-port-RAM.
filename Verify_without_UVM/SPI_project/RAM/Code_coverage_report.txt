@@ -1,0 +1,167 @@
+Coverage Report by instance with details
+
+=================================================================================
+=== Instance: /\top#DUT_Design /sva_inst
+=== Design Unit: work.RAM_Assertion_sva
+=================================================================================
+
+Assertion Coverage:
+    Assertions                       3         3         0   100.00%
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/\top#DUT_Design /sva_inst/DATA_OUT_Assertion
+                     Assertion.sv(36)                   0          1
+/\top#DUT_Design /sva_inst/RESET_Assertion
+                     Assertion.sv(37)                   0          1
+/\top#DUT_Design /sva_inst/ENABLE_Assertion
+                     Assertion.sv(38)                   0          1
+
+Directive Coverage:
+    Directives                       3         3         0   100.00%
+
+DIRECTIVE COVERAGE:
+--------------------------------------------------------------------------------------------
+Name                                     Design Design   Lang File(Line)      Hits Status    
+                                         Unit   UnitType                                     
+--------------------------------------------------------------------------------------------
+/\top#DUT_Design /sva_inst/DATA_OUT_Cover 
+                                         RAM_Assertion_sva Verilog  SVA  Assertion.sv(40) 719 Covered   
+/\top#DUT_Design /sva_inst/RESET_Cover   RAM_Assertion_sva Verilog  SVA  Assertion.sv(41)  49 Covered   
+/\top#DUT_Design /sva_inst/ENABLE_Cover  RAM_Assertion_sva Verilog  SVA  Assertion.sv(42) 968 Covered   
+
+=================================================================================
+=== Instance: /\top#DUT_Design 
+=== Design Unit: work.Dp_Sync_RAM
+=================================================================================
+Branch Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Branches                         7         7         0   100.00%
+
+================================Branch Details================================
+
+Branch Coverage for instance /\top#DUT_Design 
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File Dp_Sync_RAM.sv
+------------------------------------IF Branch------------------------------------
+    20                                      4401     Count coming in to IF
+    20              1                         49     		if (!rst_n) begin
+    26              1                       3367     		else if (rx_valid) begin
+    35              1                        985     		else begin
+Branch totals: 3 hits of 3 branches = 100.00%
+
+------------------------------------CASE Branch------------------------------------
+    28                                      3367     Count coming in to CASE
+    29              1                        814     			2'b00:  wr_addr  <= din[7:0];
+    30              1                        795     			2'b01: mem[wr_addr] <= din[7:0];
+    31              1                        885     			2'b10: rd_addr <= din[7:0];
+    32              1                        873     			default: {dout, tx_valid} <= {mem[rd_addr], 1'b1};
+Branch totals: 4 hits of 4 branches = 100.00%
+
+
+Statement Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Statements                      15        15         0   100.00%
+
+================================Statement Details================================
+
+Statement Coverage for instance /\top#DUT_Design  --
+
+    Line         Item                      Count     Source 
+    ----         ----                      -----     ------ 
+  File Dp_Sync_RAM.sv
+    1                                                module Dp_Sync_RAM #(ADDR_SIZE=8,MEM_DEPTH=256)(interface_RAM.DUT_Design inst_interface );
+    2                                                
+    3                                                	 logic clk, rst_n, rx_valid;
+    4                                                	 logic [9:0] din;
+    5                                                	 logic tx_valid;
+    6                                                	 logic [7:0] dout;
+    7                                                    
+    8               1                       8803         assign clk      = inst_interface.clk;
+    9               1                         99         assign rst_n    = inst_interface.rst_n;
+    10              1                          5         assign rx_valid = inst_interface.rx_valid;
+    11              1                       4395         assign din      = inst_interface.din;
+    12                                               
+    13                                                   assign inst_interface.dout     = dout;
+    14                                                   assign inst_interface.tx_valid = tx_valid ;
+    15                                               
+    16                                               	reg [7:0] mem [MEM_DEPTH-1:0];
+    17                                               	reg [ADDR_SIZE-1:0] rd_addr,wr_addr ;
+    18                                               	
+    19              1                       4401     	always @(posedge clk ) begin // first bug : rst must be syncrouns no Ashync
+    20                                               		if (!rst_n) begin
+    21              1                         49     		   dout <= 0;
+    22              1                         49     		   tx_valid <= 0; //second bug : tx must take zero when rst_n is asserted
+    23              1                         49     		   wr_addr <= 0 ;
+    24              1                         49     		   rd_addr <= 0 ;//3th bug : when rst_n asserted , addr and not 2 internal signals it only one 
+    25                                               		end
+    26                                               		else if (rx_valid) begin
+    27              1                       3367     		   tx_valid <= 0;
+    28                                               		    case (din[9:8])
+    29              1                        814     			2'b00:  wr_addr  <= din[7:0];
+    30              1                        795     			2'b01: mem[wr_addr] <= din[7:0];
+    31              1                        885     			2'b10: rd_addr <= din[7:0];
+    32              1                        873     			default: {dout, tx_valid} <= {mem[rd_addr], 1'b1};
+    33                                               		   endcase
+    34                                               		end
+    35                                               		else begin
+    36              1                        985     			tx_valid  <= 0 ;
+
+Toggle Coverage:
+    Enabled Coverage              Bins      Hits    Misses  Coverage
+    ----------------              ----      ----    ------  --------
+    Toggles                         76        76         0   100.00%
+
+================================Toggle Details================================
+
+Toggle Coverage for instance /\top#DUT_Design  --
+
+                                              Node      1H->0L      0L->1H                          "Coverage"
+                                              ---------------------------------------------------------------
+                                               clk           1           1                              100.00 
+                                          din[9-0]           1           1                              100.00 
+                                         dout[7-0]           1           1                              100.00 
+                                      rd_addr[7-0]           1           1                              100.00 
+                                             rst_n           1           1                              100.00 
+                                          rx_valid           1           1                              100.00 
+                                          tx_valid           1           1                              100.00 
+                                      wr_addr[7-0]           1           1                              100.00 
+
+Total Node Count     =         38 
+Toggled Node Count   =         38 
+Untoggled Node Count =          0 
+
+Toggle Coverage      =     100.00% (76 of 76 bins)
+
+
+DIRECTIVE COVERAGE:
+--------------------------------------------------------------------------------------------
+Name                                     Design Design   Lang File(Line)      Hits Status    
+                                         Unit   UnitType                                     
+--------------------------------------------------------------------------------------------
+/\top#DUT_Design /sva_inst/DATA_OUT_Cover 
+                                         RAM_Assertion_sva Verilog  SVA  Assertion.sv(40) 719 Covered   
+/\top#DUT_Design /sva_inst/RESET_Cover   RAM_Assertion_sva Verilog  SVA  Assertion.sv(41)  49 Covered   
+/\top#DUT_Design /sva_inst/ENABLE_Cover  RAM_Assertion_sva Verilog  SVA  Assertion.sv(42) 968 Covered   
+
+TOTAL DIRECTIVE COVERAGE: 100.00%  COVERS: 3
+
+ASSERTION RESULTS:
+--------------------------------------------------------------------
+Name                 File(Line)                   Failure      Pass 
+                                                  Count        Count
+--------------------------------------------------------------------
+/\top#DUT_Design /sva_inst/DATA_OUT_Assertion
+                     Assertion.sv(36)                   0          1
+/\top#DUT_Design /sva_inst/RESET_Assertion
+                     Assertion.sv(37)                   0          1
+/\top#DUT_Design /sva_inst/ENABLE_Assertion
+                     Assertion.sv(38)                   0          1
+
+Total Coverage By Instance (filtered view): 100.00%
+
